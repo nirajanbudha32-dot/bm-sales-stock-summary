@@ -1,13 +1,8 @@
--- ============================================
--- Fix emails to have @ and recreate users
--- Run this in Supabase SQL Editor
--- ============================================
+DELETE FROM public.sales;
+DELETE FROM public.stock;
+DELETE FROM public.profiles;
+DELETE FROM auth.users;
 
--- 1. Delete old users
-DELETE FROM public.profiles WHERE email IN ('BMADMIN', 'Saleman');
-DELETE FROM auth.users WHERE email IN ('BMADMIN', 'Saleman');
-
--- 2. Create Admin user
 INSERT INTO auth.users (
   instance_id, id, aud, role, email, encrypted_password,
   email_confirmed_at, created_at, updated_at,
@@ -19,13 +14,6 @@ INSERT INTO auth.users (
   now(), now(), now(), '', '', '', ''
 );
 
-DO $$ DECLARE admin_id uuid; BEGIN
-  SELECT id INTO admin_id FROM auth.users WHERE email = 'admin@bmstore.com';
-  INSERT INTO public.profiles (id, email, role) VALUES (admin_id, 'admin@bmstore.com', 'admin')
-  ON CONFLICT (id) DO UPDATE SET role = 'admin';
-END $$;
-
--- 3. Create Salesman user
 INSERT INTO auth.users (
   instance_id, id, aud, role, email, encrypted_password,
   email_confirmed_at, created_at, updated_at,
@@ -37,8 +25,10 @@ INSERT INTO auth.users (
   now(), now(), now(), '', '', '', ''
 );
 
-DO $$ DECLARE sales_id uuid; BEGIN
-  SELECT id INTO sales_id FROM auth.users WHERE email = 'salesman@bmstore.com';
-  INSERT INTO public.profiles (id, email, role) VALUES (sales_id, 'salesman@bmstore.com', 'salesman')
-  ON CONFLICT (id) DO UPDATE SET role = 'salesman';
-END $$;
+INSERT INTO public.profiles (id, email, role)
+SELECT id, email, 'admin' FROM auth.users WHERE email = 'admin@bmstore.com'
+ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email, role = EXCLUDED.role;
+
+INSERT INTO public.profiles (id, email, role)
+SELECT id, email, 'salesman' FROM auth.users WHERE email = 'salesman@bmstore.com'
+ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email, role = EXCLUDED.role;
