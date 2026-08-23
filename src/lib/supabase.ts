@@ -1,15 +1,18 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 
-const url = import.meta.env.VITE_SUPABASE_URL as string;
-const key = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
+const supabaseUrl = import.meta.env.VITE_SUPABASE_URL as string;
+const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY as string;
 
-if (!url || !key) {
+if (!supabaseUrl || !supabaseAnonKey) {
   console.error(
-    "[BM Store] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. Set them in Vercel Settings > Environment Variables and redeploy.",
+    "[BM Store] Missing VITE_SUPABASE_URL or VITE_SUPABASE_ANON_KEY. Set them in Vercel > Settings > Environment Variables and redeploy.",
   );
 }
 
-export const supabase: SupabaseClient = createClient(url || "https://placeholder.supabase.co", key || "placeholder");
+export const supabase: SupabaseClient = createClient(
+  supabaseUrl || "https://placeholder.supabase.co",
+  supabaseAnonKey || "placeholder-key",
+);
 
 export type UserRole = "admin" | "salesman";
 

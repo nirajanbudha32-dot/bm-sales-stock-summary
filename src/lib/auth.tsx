@@ -24,8 +24,18 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [loading, setLoading] = useState(true);
 
   async function fetchProfile(userId: string) {
-    const { data } = await supabase.from("profiles").select("*").eq("id", userId).single();
-    setProfile(data as Profile | null);
+    try {
+      const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).single();
+      if (error) {
+        console.error("[BM Store] fetchProfile error:", error.message);
+        setProfile(null);
+      } else {
+        setProfile(data as Profile | null);
+      }
+    } catch (err) {
+      console.error("[BM Store] fetchProfile exception:", err);
+      setProfile(null);
+    }
   }
 
   async function refreshProfile() {
@@ -34,18 +44,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setUser(session?.user ?? null);
-      if (session?.user) {
-        fetchProfile(session.user.id).finally(() => setLoading(false));
-      } else {
-        setLoading(false);
-      }
-    });
+    let mounted = true;
+
+    supabase.auth
+      .getSession()
+      .then(({ data: { session } }) => {
+        if (!mounted) return;
+        setUser(session?.user ?? null);
+        if (session?.user) {
+          fetchProfile(session.user.id).finally(() => {
+            if (mounted) setLoading(false);
+          });
+        } else {
+          setLoading(false);
+        }
+      })
+      .catch((err) => {
+        console.error("[BM Store] getSession error:", err);
+        if (mounted) setLoading(false);
+      });
 
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!mounted) return;
       setUser(session?.user ?? null);
       if (session?.user) {
         fetchProfile(session.user.id);
@@ -54,39 +76,56 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      mounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   async function signIn(email: string, password: string) {
-    const { error } = await supabase.auth.signInWithPassword({ email, password });
-    return { error };
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email, password });
+      return { error };
+    } catch (err) {
+      console.error("[BM Store] signIn exception:", err);
+      return { error: { message: err instanceof Error ? err.message : "Sign in failed" } as AuthError };
+    }
   }
 
   async function signUp(email: string, password: string, asAdmin = false) {
-    const { data: existingUsers } = await supabase.from("profiles").select("id").limit(1);
-    const isFirstUser = !existingUsers || existingUsers.length === 0;
+    try {
+      const { data: existingUsers } = await supabase.from("profiles").select("id").limit(1);
+      const isFirstUser = !existingUsers || existingUsers.length === 0;
 
-    const { error } = await supabase.auth.signUp({ email, password });
-    if (error) return { error };
+      const { error } = await supabase.auth.signUp({ email, password });
+      if (error) return { error };
 
-    if (asAdmin || isFirstUser) {
-      const {
-        data: { user: newUser },
-      } = await supabase.auth.getUser();
-      if (newUser) {
-        await supabase.from("profiles").upsert({
-          id: newUser.id,
-          email: newUser.email!,
-          role: "admin",
-        });
+      if (asAdmin || isFirstUser) {
+        const {
+          data: { user: newUser },
+        } = await supabase.auth.getUser();
+        if (newUser) {
+          await supabase.from("profiles").upsert({
+            id: newUser.id,
+            email: newUser.email!,
+            role: "admin",
+          });
+        }
       }
-    }
 
-    return { error: null };
+      return { error: null };
+    } catch (err) {
+      console.error("[BM Store] signUp exception:", err);
+      return { error: { message: err instanceof Error ? err.message : "Sign up failed" } as AuthError };
+    }
   }
 
   async function signOut() {
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error("[BM Store] signOut error:", err);
+    }
     setUser(null);
     setProfile(null);
   }
