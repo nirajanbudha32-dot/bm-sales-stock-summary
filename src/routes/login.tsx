@@ -18,6 +18,9 @@ function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
+
+  const envMissing = !import.meta.env.VITE_SUPABASE_URL || !import.meta.env.VITE_SUPABASE_ANON_KEY;
 
   if (user) {
     navigate({ to: "/" });
@@ -26,15 +29,25 @@ function LoginPage() {
 
   async function handleLogin(e: React.FormEvent) {
     e.preventDefault();
+    setError("");
     setSubmitting(true);
-    const { error } = await signIn(email, password);
-    setSubmitting(false);
-    if (error) {
-      console.error("Login error:", error);
-      toast.error(error.message);
-    } else {
-      toast.success("Logged in");
-      navigate({ to: "/" });
+    try {
+      const { error } = await signIn(email, password);
+      setSubmitting(false);
+      if (error) {
+        console.error("Login error:", error);
+        setError(error.message);
+        toast.error(error.message);
+      } else {
+        toast.success("Logged in");
+        navigate({ to: "/" });
+      }
+    } catch (err) {
+      console.error("Login exception:", err);
+      setSubmitting(false);
+      const msg = err instanceof Error ? err.message : "An unexpected error occurred";
+      setError(msg);
+      toast.error(msg);
     }
   }
 
@@ -46,6 +59,16 @@ function LoginPage() {
           <CardDescription>Sign in to your account</CardDescription>
         </CardHeader>
         <CardContent>
+          {envMissing && (
+            <div className="mb-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+              Missing Supabase config. Env vars not set in build.
+            </div>
+          )}
+          {error && (
+            <div className="mb-4 rounded-md bg-destructive/15 p-3 text-sm text-destructive">
+              {error}
+            </div>
+          )}
           <form onSubmit={handleLogin} className="space-y-4">
             <div>
               <Label htmlFor="email">Email</Label>

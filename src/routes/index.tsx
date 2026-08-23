@@ -2,7 +2,6 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { BarChart3, Boxes, LogOut, ReceiptText, Truck, Users } from "lucide-react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Toaster } from "@/components/ui/sonner";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { StockManager } from "@/components/StockManager";
@@ -108,7 +107,6 @@ function Index() {
       </Tabs>
 
       {isAdmin && <UserManager open={userManagerOpen} onOpenChange={setUserManagerOpen} />}
-      <Toaster />
     </main>
   );
 }
