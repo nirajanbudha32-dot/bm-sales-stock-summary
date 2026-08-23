@@ -37,6 +37,9 @@ dist-ssr
 .env.*.local
 
 # Generated
+.dev.vars
+.vercel/
+output/
 dev-output.txt
 dev-error.txt
 seed-data.sql
