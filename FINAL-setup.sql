@@ -2,21 +2,20 @@
 -- FINAL COMPLETE FIX - Run this ONE file only
 -- ============================================
 
--- 1. Fix the trigger so it stops overwriting roles
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS trigger AS $$
-BEGIN
-  INSERT INTO public.profiles (id, email, role)
-  VALUES (new.id, new.email, 'salesman')
-  ON CONFLICT (id) DO NOTHING;
-  RETURN new;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+-- 1. DROP the trigger so it does NOT fire when we create users
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+DROP FUNCTION IF EXISTS public.handle_new_user();
 
--- 2. Clean slate (keep tables, delete data)
+-- 2. Clean slate - MUST delete Supabase internal auth tables first
+--    (they have foreign keys to auth.users that block deletion)
 DELETE FROM public.sales;
 DELETE FROM public.stock;
 DELETE FROM public.profiles;
+DELETE FROM auth.sessions;
+DELETE FROM auth.refresh_tokens;
+DELETE FROM auth.mfa_factors;
+DELETE FROM auth.mfa_challenges;
+DELETE FROM auth.identities;
 DELETE FROM auth.users;
 
 -- 3. Create Admin user
@@ -43,14 +42,111 @@ INSERT INTO auth.users (
   now(), now(), now(), '', '', '', ''
 );
 
--- 5. Create profiles (trigger won't overwrite because ON CONFLICT DO NOTHING)
+-- 5. Create profiles with CORRECT roles
 INSERT INTO public.profiles (id, email, role)
 SELECT id, email, 'admin' FROM auth.users WHERE email = 'admin@bmstore.com';
 
 INSERT INTO public.profiles (id, email, role)
 SELECT id, email, 'salesman' FROM auth.users WHERE email = 'salesman@bmstore.com';
 
--- 6. Verify
+-- 6. SAFETY NET: Force correct roles no matter what happened above
+UPDATE public.profiles SET role = 'admin' WHERE email = 'admin@bmstore.com';
+UPDATE public.profiles SET role = 'salesman' WHERE email = 'salesman@bmstore.com';
+
+-- 7. Fix RLS Recursion issue with SECURITY DEFINER function
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS boolean AS $$
+BEGIN
+  RETURN EXISTS (
+    SELECT 1 FROM public.profiles
+    WHERE id = auth.uid() AND role = 'admin'
+  );
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER STABLE;
+
+-- Fix RLS Policies on profiles
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Users can read own profile" ON public.profiles;
+DROP POLICY IF EXISTS "Admin can read all profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Admin can insert profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Admin can update profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Authenticated users can read profiles" ON public.profiles;
+DROP POLICY IF EXISTS "Users or admin can update profiles" ON public.profiles;
+
+CREATE POLICY "Authenticated users can read profiles"
+  ON public.profiles FOR SELECT
+  TO authenticated
+  USING (true);
+
+CREATE POLICY "Users or admin can update profiles"
+  ON public.profiles FOR UPDATE
+  TO authenticated
+  USING (auth.uid() = id OR public.is_admin());
+
+-- Fix RLS Policies on stock
+ALTER TABLE public.stock ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Authenticated users can read stock" ON public.stock;
+DROP POLICY IF EXISTS "Admin can insert stock" ON public.stock;
+DROP POLICY IF EXISTS "Admin can update stock" ON public.stock;
+DROP POLICY IF EXISTS "Admin can delete stock" ON public.stock;
+
+CREATE POLICY "Authenticated users can read stock"
+  ON public.stock FOR SELECT
+  TO authenticated
+  USING (true);
+
+CREATE POLICY "Admin can insert stock"
+  ON public.stock FOR INSERT
+  TO authenticated
+  WITH CHECK (public.is_admin());
+
+CREATE POLICY "Admin can update stock"
+  ON public.stock FOR UPDATE
+  TO authenticated
+  USING (public.is_admin());
+
+CREATE POLICY "Admin can delete stock"
+  ON public.stock FOR DELETE
+  TO authenticated
+  USING (public.is_admin());
+
+-- Fix RLS Policies on sales
+ALTER TABLE public.sales ENABLE ROW LEVEL SECURITY;
+DROP POLICY IF EXISTS "Authenticated users can read sales" ON public.sales;
+DROP POLICY IF EXISTS "Authenticated users can insert sales" ON public.sales;
+DROP POLICY IF EXISTS "Authenticated users can delete sales" ON public.sales;
+
+CREATE POLICY "Authenticated users can read sales"
+  ON public.sales FOR SELECT
+  TO authenticated
+  USING (true);
+
+CREATE POLICY "Authenticated users can insert sales"
+  ON public.sales FOR INSERT
+  TO authenticated
+  WITH CHECK (true);
+
+CREATE POLICY "Authenticated users can delete sales"
+  ON public.sales FOR DELETE
+  TO authenticated
+  USING (true);
+
+-- 8. Re-create the trigger for FUTURE signups only
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS trigger AS $$
+BEGIN
+  INSERT INTO public.profiles (id, email, role)
+  VALUES (new.id, new.email, 'salesman')
+  ON CONFLICT (id) DO NOTHING;
+  RETURN new;
+END;
+$$ LANGUAGE plpgsql SECURITY DEFINER;
+
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- 9. Verify - MUST show: admin@bmstore.com = admin, salesman@bmstore.com = salesman
 SELECT p.email, p.role FROM public.profiles p;
 
 -- 7. Restore all stock data

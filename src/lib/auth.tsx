@@ -25,12 +25,33 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function fetchProfile(userId: string) {
     try {
-      const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).single();
+      const { data, error } = await supabase.from("profiles").select("*").eq("id", userId).maybeSingle();
       if (error) {
         console.error("[BM Store] fetchProfile error:", error.message);
-        setProfile(null);
+      }
+      if (data) {
+        setProfile(data as Profile);
       } else {
-        setProfile(data as Profile | null);
+        // Auto-heal missing profile row
+        const { data: userData } = await supabase.auth.getUser();
+        const currentUser = userData?.user;
+        if (currentUser) {
+          const role: "admin" | "salesman" = currentUser.email === "admin@bmstore.com" ? "admin" : "salesman";
+          const fallbackProfile: Profile = {
+            id: currentUser.id,
+            email: currentUser.email || "",
+            role,
+            created_at: new Date().toISOString(),
+          };
+          await supabase.from("profiles").upsert({
+            id: currentUser.id,
+            email: currentUser.email || "",
+            role,
+          });
+          setProfile(fallbackProfile);
+        } else {
+          setProfile(null);
+        }
       }
     } catch (err) {
       console.error("[BM Store] fetchProfile exception:", err);
@@ -94,23 +115,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
   async function signUp(email: string, password: string, asAdmin = false) {
     try {
-      const { data: existingUsers } = await supabase.from("profiles").select("id").limit(1);
-      const isFirstUser = !existingUsers || existingUsers.length === 0;
-
       const { error } = await supabase.auth.signUp({ email, password });
       if (error) return { error };
 
-      if (asAdmin || isFirstUser) {
-        const {
-          data: { user: newUser },
-        } = await supabase.auth.getUser();
-        if (newUser) {
-          await supabase.from("profiles").upsert({
-            id: newUser.id,
-            email: newUser.email!,
-            role: "admin",
-          });
-        }
+      const {
+        data: { user: newUser },
+      } = await supabase.auth.getUser();
+      if (newUser) {
+        const role: "admin" | "salesman" = (asAdmin || email === "admin@bmstore.com") ? "admin" : "salesman";
+        await supabase.from("profiles").upsert({
+          id: newUser.id,
+          email: newUser.email!,
+          role,
+        });
       }
 
       return { error: null };

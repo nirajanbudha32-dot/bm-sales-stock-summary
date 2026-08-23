@@ -65,81 +65,85 @@ export function StockOutSummary() {
 
   return (
     <div className="space-y-4">
-      <Card className="p-4">
-        <div className="grid gap-3 md:grid-cols-4">
+      <Card className="p-3 sm:p-4">
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
           <div>
-            <Label htmlFor="so-from">Date from</Label>
+            <Label htmlFor="so-from" className="text-xs sm:text-sm">Date from</Label>
             <Input
               id="so-from"
               type="date"
               value={dateFrom}
               onChange={(e) => setDateFrom(e.target.value)}
+              className="h-9 text-xs sm:text-sm"
             />
           </div>
           <div>
-            <Label htmlFor="so-to">Date to</Label>
+            <Label htmlFor="so-to" className="text-xs sm:text-sm">Date to</Label>
             <Input
               id="so-to"
               type="date"
               value={dateTo}
               onChange={(e) => setDateTo(e.target.value)}
+              className="h-9 text-xs sm:text-sm"
             />
           </div>
           <div>
-            <Label htmlFor="so-search">Search</Label>
+            <Label htmlFor="so-search" className="text-xs sm:text-sm">Search</Label>
             <Input
               id="so-search"
               value={q}
               onChange={(e) => setQ(e.target.value)}
-              placeholder="Item, code, invoice, customer"
+              placeholder="Item, code, invoice, customer..."
+              className="h-9 text-xs sm:text-sm"
             />
           </div>
           <div className="flex items-end">
-            <Button variant="outline" onClick={onExport} className="w-full">
-              <Download className="mr-1 size-4" /> Export Excel
+            <Button variant="outline" onClick={onExport} className="h-9 w-full text-xs sm:text-sm">
+              <Download className="mr-1 size-3.5 sm:size-4" /> Export Excel
             </Button>
           </div>
         </div>
       </Card>
 
-      <div className="flex flex-wrap gap-6 text-sm text-muted-foreground">
-        <span>
-          {filtered.length} item{filtered.length !== 1 ? "s" : ""}
-        </span>
-        <span>{totalQty} units out</span>
-        <span>
-          Total: <strong className="text-foreground">{money(totalTotal)}</strong>
-        </span>
+      <div className="flex flex-wrap items-center justify-between gap-2 text-xs sm:text-sm text-muted-foreground">
+        <div>
+          <span><strong className="text-foreground">{filtered.length}</strong> items</span>
+          <span className="mx-2">•</span>
+          <span><strong className="text-foreground">{totalQty}</strong> units out</span>
+        </div>
+        <div>
+          Total Value: <strong className="text-foreground">{money(totalTotal)}</strong>
+        </div>
       </div>
 
       <Card className="overflow-hidden p-0">
-        <div className="max-h-[60vh] overflow-auto">
-          <table className="w-full text-sm">
+        <div className="max-h-[60vh] overflow-x-auto overflow-y-auto">
+          <table className="w-full min-w-[700px] text-xs sm:text-sm">
             <thead className="sticky top-0 bg-secondary text-secondary-foreground">
               <tr className="text-left">
-                <th className="p-2">Date</th>
-                <th className="p-2">Store Name</th>
-                <th className="p-2">Item Code</th>
-                <th className="p-2">Item Name</th>
-                <th className="p-2">Sub Category</th>
-                <th className="p-2 text-right">Qty Out</th>
-                <th className="p-2 text-right">Unit Price</th>
-                <th className="p-2">Customer</th>
-                <th className="p-2">Invoice No</th>
+                <th className="p-2.5">Date</th>
+                <th className="p-2.5">Store Name</th>
+                <th className="p-2.5">Item Code</th>
+                <th className="p-2.5">Item Name</th>
+                <th className="p-2.5">Sub Category</th>
+                <th className="p-2.5 text-right">Qty Out</th>
+                <th className="p-2.5 text-right">Unit Price</th>
+                <th className="p-2.5">Customer</th>
+                <th className="p-2.5">Invoice No</th>
               </tr>
             </thead>
             <tbody>
               {filtered.map((s) => (
                 <tr key={s.id} className="border-t border-border">
-                  <td className="p-2">{s.date}</td>
-                  <td className="p-2">BM iPhone Store</td>
-                  <td className="p-2 font-mono">{s.itemCode}</td>
-                  <td className="p-2">{s.itemName}</td>
-                  <td className="p-2">{s.subCategory}</td>
-                  <td className="p-2 text-right">{s.qty}</td>
-                  <td className="p-2 text-right">{money(s.rate)}</td>
-                  <td className="p-2">{s.customer}</td>
-                  <td className="p-2 font-mono">{s.invoiceNo}</td>
+                  <td className="p-2.5 whitespace-nowrap">{s.date}</td>
+                  <td className="p-2.5">BM iPhone Store</td>
+                  <td className="p-2.5 font-mono">{s.itemCode}</td>
+                  <td className="p-2.5 font-medium">{s.itemName}</td>
+                  <td className="p-2.5">{s.subCategory}</td>
+                  <td className="p-2.5 text-right font-semibold">{s.qty}</td>
+                  <td className="p-2.5 text-right">{money(s.rate)}</td>
+                  <td className="p-2.5">{s.customer}</td>
+                  <td className="p-2.5 font-mono">{s.invoiceNo}</td>
                 </tr>
               ))}
               {filtered.length === 0 && (
@@ -153,12 +157,12 @@ export function StockOutSummary() {
             {filtered.length > 0 && (
               <tfoot className="sticky bottom-0 bg-muted">
                 <tr className="border-t border-border font-semibold">
-                  <td className="p-2" colSpan={5}>
+                  <td className="p-2.5" colSpan={5}>
                     Total
                   </td>
-                  <td className="p-2 text-right">{totalQty}</td>
-                  <td className="p-2 text-right">{money(totalAmount)}</td>
-                  <td className="p-2" colSpan={2}></td>
+                  <td className="p-2.5 text-right">{totalQty}</td>
+                  <td className="p-2.5 text-right">{money(totalAmount)}</td>
+                  <td className="p-2.5" colSpan={2}></td>
                 </tr>
               </tfoot>
             )}

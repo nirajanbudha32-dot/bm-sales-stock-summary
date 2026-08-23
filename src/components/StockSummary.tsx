@@ -45,27 +45,27 @@ function GroupTable({ label, groups }: { label: string; groups: Group[] }) {
 
   return (
     <Card className="overflow-hidden p-0">
-      <div className="max-h-[55vh] overflow-auto">
-        <table className="w-full text-sm">
+      <div className="max-h-[55vh] overflow-x-auto overflow-y-auto">
+        <table className="w-full min-w-[550px] text-xs sm:text-sm">
           <thead className="sticky top-0 bg-secondary text-secondary-foreground">
             <tr className="text-left">
-              <th className="p-2">{label}</th>
-              <th className="p-2 text-right">Items</th>
-              <th className="p-2 text-right">Qty</th>
-              <th className="p-2 text-right">Purchase value</th>
-              <th className="p-2 text-right">Selling value</th>
+              <th className="p-2.5">{label}</th>
+              <th className="p-2.5 text-right">Items</th>
+              <th className="p-2.5 text-right">Qty</th>
+              <th className="p-2.5 text-right">Purchase value</th>
+              <th className="p-2.5 text-right">Selling value</th>
             </tr>
           </thead>
           <tbody>
             {groups.map((g) => (
               <tr key={g.key} className="border-t border-border">
-                <td className="p-2 font-medium">{g.key}</td>
-                <td className="p-2 text-right">{g.items}</td>
-                <td className={`p-2 text-right ${g.qty <= 0 ? "text-destructive" : ""}`}>
+                <td className="p-2.5 font-medium">{g.key}</td>
+                <td className="p-2.5 text-right">{g.items}</td>
+                <td className={`p-2.5 text-right font-semibold ${g.qty <= 0 ? "text-destructive" : ""}`}>
                   {g.qty}
                 </td>
-                <td className="p-2 text-right">{money(g.purchaseValue)}</td>
-                <td className="p-2 text-right">{money(g.sellingValue)}</td>
+                <td className="p-2.5 text-right">{money(g.purchaseValue)}</td>
+                <td className="p-2.5 text-right font-medium">{money(g.sellingValue)}</td>
               </tr>
             ))}
             {groups.length === 0 && (
@@ -79,11 +79,11 @@ function GroupTable({ label, groups }: { label: string; groups: Group[] }) {
           {groups.length > 0 && (
             <tfoot className="sticky bottom-0 bg-muted">
               <tr className="border-t border-border font-semibold">
-                <td className="p-2">Total</td>
-                <td className="p-2 text-right">{t.items}</td>
-                <td className="p-2 text-right">{t.qty}</td>
-                <td className="p-2 text-right">{money(t.purchaseValue)}</td>
-                <td className="p-2 text-right">{money(t.sellingValue)}</td>
+                <td className="p-2.5">Total</td>
+                <td className="p-2.5 text-right">{t.items}</td>
+                <td className="p-2.5 text-right">{t.qty}</td>
+                <td className="p-2.5 text-right">{money(t.purchaseValue)}</td>
+                <td className="p-2.5 text-right">{money(t.sellingValue)}</td>
               </tr>
             </tfoot>
           )}
@@ -95,10 +95,10 @@ function GroupTable({ label, groups }: { label: string; groups: Group[] }) {
 
 function Stat({ label, value, hint }: { label: string; value: string; hint?: string }) {
   return (
-    <Card className="p-4">
-      <p className="text-xs uppercase tracking-wide text-muted-foreground">{label}</p>
-      <p className="mt-1 text-xl font-semibold">{value}</p>
-      {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+    <Card className="p-3 sm:p-4">
+      <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground sm:text-xs">{label}</p>
+      <p className="mt-1 text-lg font-bold sm:text-xl">{value}</p>
+      {hint && <p className="mt-0.5 text-[11px] text-muted-foreground sm:text-xs">{hint}</p>}
     </Card>
   );
 }
@@ -183,44 +183,44 @@ export function StockSummary() {
 
   return (
     <div className="space-y-4">
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-3 grid-cols-2 lg:grid-cols-4">
         <Stat
           label="Today sales"
           value={money(todayTotal)}
-          hint={`${todaySales.length} invoices · VAT ${money(todayVat)}`}
+          hint={`${todaySales.length} inv · VAT ${money(todayVat)}`}
         />
         <Stat
           label="Today stock out"
           value={`${todayQty} units`}
-          hint={`Net amount ${money(todayAmount)}`}
+          hint={`Net ${money(todayAmount)}`}
         />
         <Stat
           label="Stock on hand"
           value={`${totalQty} units`}
-          hint={`${stock.length} items · ${outOfStock} out of stock`}
+          hint={`${stock.length} items · ${outOfStock} out`}
         />
         <Stat
           label="Stock value"
           value={money(totalSelling)}
-          hint={`Purchase ${money(totalPurchase)}`}
+          hint={`Cost ${money(totalPurchase)}`}
         />
       </div>
 
       <div className="flex flex-wrap gap-2">
-        <Button variant="outline" onClick={onExport}>
-          <Download className="mr-1 size-4" /> Export summary
+        <Button variant="outline" size="sm" onClick={onExport} className="flex-1 sm:flex-initial text-xs sm:text-sm">
+          <Download className="mr-1 size-3.5 sm:size-4" /> Export summary
         </Button>
-        <Button variant="outline" onClick={onExportToday}>
-          <Download className="mr-1 size-4" /> Export today sales
+        <Button variant="outline" size="sm" onClick={onExportToday} className="flex-1 sm:flex-initial text-xs sm:text-sm">
+          <Download className="mr-1 size-3.5 sm:size-4" /> Export today sales
         </Button>
       </div>
 
       <Tabs defaultValue="category">
-        <TabsList className="mb-3">
-          <TabsTrigger value="category">By category</TabsTrigger>
-          <TabsTrigger value="brand">By brand</TabsTrigger>
-          <TabsTrigger value="subbrand">By sub-brand</TabsTrigger>
-          <TabsTrigger value="today">Today</TabsTrigger>
+        <TabsList className="mb-3 grid grid-cols-4 h-auto p-1 text-xs sm:flex sm:h-10 sm:w-auto">
+          <TabsTrigger value="category" className="py-1.5 text-xs sm:text-sm">Category</TabsTrigger>
+          <TabsTrigger value="brand" className="py-1.5 text-xs sm:text-sm">Brand</TabsTrigger>
+          <TabsTrigger value="subbrand" className="py-1.5 text-xs sm:text-sm">Sub-brand</TabsTrigger>
+          <TabsTrigger value="today" className="py-1.5 text-xs sm:text-sm">Today</TabsTrigger>
         </TabsList>
         <TabsContent value="category">
           <GroupTable label="Category" groups={byCategory} />
@@ -233,29 +233,29 @@ export function StockSummary() {
         </TabsContent>
         <TabsContent value="today">
           <Card className="overflow-hidden p-0">
-            <div className="max-h-[55vh] overflow-auto">
-              <table className="w-full text-sm">
+            <div className="max-h-[55vh] overflow-x-auto overflow-y-auto">
+              <table className="w-full min-w-[600px] text-xs sm:text-sm">
                 <thead className="sticky top-0 bg-secondary text-secondary-foreground">
                   <tr className="text-left">
-                    <th className="p-2">Invoice</th>
-                    <th className="p-2">Customer</th>
-                    <th className="p-2">Item</th>
-                    <th className="p-2 text-right">Qty</th>
-                    <th className="p-2 text-right">Amount</th>
-                    <th className="p-2 text-right">VAT 13%</th>
-                    <th className="p-2 text-right">Total</th>
+                    <th className="p-2.5">Invoice</th>
+                    <th className="p-2.5">Customer</th>
+                    <th className="p-2.5">Item</th>
+                    <th className="p-2.5 text-right">Qty</th>
+                    <th className="p-2.5 text-right">Amount</th>
+                    <th className="p-2.5 text-right">VAT 13%</th>
+                    <th className="p-2.5 text-right">Total</th>
                   </tr>
                 </thead>
                 <tbody>
                   {todaySales.map((s) => (
                     <tr key={s.id} className="border-t border-border">
-                      <td className="p-2 font-mono">{s.invoiceNo}</td>
-                      <td className="p-2">{s.customer}</td>
-                      <td className="p-2">{s.itemName}</td>
-                      <td className="p-2 text-right">{s.qty}</td>
-                      <td className="p-2 text-right">{money(s.amount)}</td>
-                      <td className="p-2 text-right">{money(s.vat)}</td>
-                      <td className="p-2 text-right font-medium">{money(s.total)}</td>
+                      <td className="p-2.5 font-mono font-medium">{s.invoiceNo}</td>
+                      <td className="p-2.5">{s.customer}</td>
+                      <td className="p-2.5">{s.itemName}</td>
+                      <td className="p-2.5 text-right font-semibold">{s.qty}</td>
+                      <td className="p-2.5 text-right">{money(s.amount)}</td>
+                      <td className="p-2.5 text-right">{money(s.vat)}</td>
+                      <td className="p-2.5 text-right font-medium">{money(s.total)}</td>
                     </tr>
                   ))}
                   {todaySales.length === 0 && (
@@ -269,13 +269,13 @@ export function StockSummary() {
                 {todaySales.length > 0 && (
                   <tfoot className="sticky bottom-0 bg-muted">
                     <tr className="border-t border-border font-semibold">
-                      <td className="p-2" colSpan={3}>
+                      <td className="p-2.5" colSpan={3}>
                         Total
                       </td>
-                      <td className="p-2 text-right">{todayQty}</td>
-                      <td className="p-2 text-right">{money(todayAmount)}</td>
-                      <td className="p-2 text-right">{money(todayVat)}</td>
-                      <td className="p-2 text-right">{money(todayTotal)}</td>
+                      <td className="p-2.5 text-right">{todayQty}</td>
+                      <td className="p-2.5 text-right">{money(todayAmount)}</td>
+                      <td className="p-2.5 text-right">{money(todayVat)}</td>
+                      <td className="p-2.5 text-right">{money(todayTotal)}</td>
                     </tr>
                   </tfoot>
                 )}

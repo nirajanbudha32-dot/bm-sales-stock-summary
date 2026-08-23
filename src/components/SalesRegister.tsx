@@ -166,32 +166,33 @@ export function SalesRegister() {
 
   return (
     <div className="space-y-4">
-      <Card className="p-4">
-        <div className="grid gap-3 md:grid-cols-3">
+      <Card className="p-3 sm:p-4">
+        <div className="grid gap-3 grid-cols-1 sm:grid-cols-2 md:grid-cols-4">
           <div>
-            <Label htmlFor="s-date">Date</Label>
-            <Input id="s-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+            <Label htmlFor="s-date" className="text-xs sm:text-sm">Date</Label>
+            <Input id="s-date" type="date" value={date} onChange={(e) => setDate(e.target.value)} className="h-9 text-xs sm:text-sm" />
           </div>
           <div>
-            <Label htmlFor="s-inv">Invoice no (auto)</Label>
-            <Input id="s-inv" value={invoiceNo} readOnly className="bg-muted font-mono" />
+            <Label htmlFor="s-inv" className="text-xs sm:text-sm">Invoice no (auto)</Label>
+            <Input id="s-inv" value={invoiceNo} readOnly className="h-9 bg-muted font-mono text-xs sm:text-sm" />
           </div>
           <div>
-            <Label htmlFor="s-cust">Customer name</Label>
+            <Label htmlFor="s-cust" className="text-xs sm:text-sm">Customer name</Label>
             <Input
               id="s-cust"
               value={customer}
               onChange={(e) => setCustomer(e.target.value)}
-              placeholder="Customer"
+              placeholder="Customer name"
+              className="h-9 text-xs sm:text-sm"
             />
           </div>
           <div>
-            <Label>Payment Method</Label>
+            <Label className="text-xs sm:text-sm">Payment Method</Label>
             <Select
               value={paymentMethod}
               onValueChange={(v) => setPaymentMethod(v as PaymentMethod)}
             >
-              <SelectTrigger>
+              <SelectTrigger className="h-9 text-xs sm:text-sm">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -206,29 +207,30 @@ export function SalesRegister() {
         </div>
 
         <div className="mt-4 border-t border-border pt-4">
-          <p className="mb-2 text-sm font-medium">Add items to bill</p>
-          <div className="grid gap-3 md:grid-cols-12">
-            <div className="relative md:col-span-5">
-              <Label htmlFor="s-item">Item</Label>
+          <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground sm:text-sm">Add items to bill</p>
+          <div className="grid gap-3 grid-cols-1 sm:grid-cols-12">
+            <div className="relative sm:col-span-6 md:col-span-5">
+              <Label htmlFor="s-item" className="text-xs sm:text-sm">Item</Label>
               <Input
                 id="s-item"
                 value={itemName}
                 onChange={(e) => setItemName(e.target.value)}
-                placeholder="Type to search"
+                placeholder="Type item name to search..."
                 autoComplete="off"
+                className="h-9 text-xs sm:text-sm"
               />
               {suggestions.length > 0 && (
-                <ul className="absolute z-20 mt-1 max-h-56 w-full overflow-auto rounded-md border border-border bg-popover shadow-md">
+                <ul className="absolute z-20 mt-1 max-h-56 w-full overflow-auto rounded-md border border-border bg-popover shadow-lg">
                   {suggestions.map((s) => (
                     <li key={s.code + s.name}>
                       <button
                         type="button"
-                        className="w-full px-3 py-2 text-left text-sm hover:bg-accent"
+                        className="w-full px-3 py-2 text-left text-xs sm:text-sm hover:bg-accent"
                         onClick={() => pick(s.name)}
                       >
-                        {s.name}
-                        <span className="ml-2 text-xs text-muted-foreground">
-                          {s.category} · {s.brand} · {s.model} · stock {s.qty}
+                        <span className="font-medium">{s.name}</span>
+                        <span className="block text-[11px] text-muted-foreground">
+                          {s.category} · {s.brand} · stock {s.qty}
                         </span>
                       </button>
                     </li>
@@ -236,51 +238,57 @@ export function SalesRegister() {
                 </ul>
               )}
             </div>
-            <div className="md:col-span-2">
-              <Label htmlFor="s-qty">Qty</Label>
-              <Input
-                id="s-qty"
-                type="number"
-                value={itemQty}
-                onChange={(e) => setItemQty(Number(e.target.value))}
-              />
+            <div className="grid grid-cols-2 gap-2 sm:col-span-6 md:col-span-4">
+              <div>
+                <Label htmlFor="s-qty" className="text-xs sm:text-sm">Qty</Label>
+                <Input
+                  id="s-qty"
+                  type="number"
+                  value={itemQty}
+                  onChange={(e) => setItemQty(Number(e.target.value))}
+                  className="h-9 text-xs sm:text-sm"
+                />
+              </div>
+              <div>
+                <Label htmlFor="s-rate" className="text-xs sm:text-sm">Rate</Label>
+                <Input
+                  id="s-rate"
+                  type="number"
+                  value={itemRate}
+                  onChange={(e) => setItemRate(Number(e.target.value))}
+                  className="h-9 text-xs sm:text-sm"
+                />
+              </div>
             </div>
-            <div className="md:col-span-2">
-              <Label htmlFor="s-rate">Rate</Label>
-              <Input
-                id="s-rate"
-                type="number"
-                value={itemRate}
-                onChange={(e) => setItemRate(Number(e.target.value))}
-              />
-            </div>
-            <div className="flex items-end md:col-span-3">
-              <Button onClick={addToBill} className="w-full">
-                <Plus className="mr-1 size-4" /> Add to bill
+            <div className="flex items-end sm:col-span-12 md:col-span-3">
+              <Button onClick={addToBill} className="h-9 w-full text-xs sm:text-sm">
+                <Plus className="mr-1 size-3.5 sm:size-4" /> Add to bill
               </Button>
             </div>
           </div>
-          <div className="mt-2 grid grid-cols-4 gap-3 text-xs text-muted-foreground md:w-3/4">
+          <div className="mt-3 grid grid-cols-2 gap-2 rounded-md bg-muted/40 p-2.5 text-xs text-muted-foreground sm:grid-cols-4">
             <div>
-              Category: <strong>{matched?.category || "-"}</strong>
+              Category: <strong className="text-foreground">{matched?.category || "-"}</strong>
             </div>
             <div>
-              Sub Category: <strong>{matched?.subCategory || "-"}</strong>
+              Sub Category: <strong className="text-foreground">{matched?.subCategory || "-"}</strong>
             </div>
             <div>
-              Brand: <strong>{matched?.brand || "-"}</strong>
+              Brand: <strong className="text-foreground">{matched?.brand || "-"}</strong>
             </div>
             <div>
-              Model: <strong>{matched?.model || "-"}</strong>
+              Model: <strong className="text-foreground">{matched?.model || "-"}</strong>
             </div>
           </div>
         </div>
 
         {billItems.length > 0 && (
           <div className="mt-4 border-t border-border pt-4">
-            <p className="mb-2 text-sm font-medium">Bill items ({billItems.length})</p>
-            <div className="max-h-[30vh] overflow-auto">
-              <table className="w-full text-sm">
+            <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-muted-foreground sm:text-sm">
+              Bill items ({billItems.length})
+            </p>
+            <div className="max-h-[35vh] overflow-x-auto overflow-y-auto rounded-md border border-border">
+              <table className="w-full min-w-[600px] text-xs sm:text-sm">
                 <thead className="sticky top-0 bg-secondary text-secondary-foreground">
                   <tr className="text-left">
                     <th className="p-2">#</th>
@@ -298,21 +306,21 @@ export function SalesRegister() {
                   {billItems.map((item, idx) => (
                     <tr key={idx} className="border-t border-border">
                       <td className="p-2">{idx + 1}</td>
-                      <td className="p-2">
+                      <td className="p-2 font-medium">
                         {item.itemName}
-                        <span className="ml-1 text-xs text-muted-foreground">
+                        <span className="block text-[11px] text-muted-foreground font-normal">
                           {item.subCategory} · {item.brand} · {item.model}
                         </span>
                       </td>
                       <td className="p-2">{item.subCategory}</td>
-                      <td className="p-2 text-right">{item.qty}</td>
+                      <td className="p-2 text-right font-semibold">{item.qty}</td>
                       <td className="p-2 text-right">{money(item.rate)}</td>
                       <td className="p-2 text-right">{money(item.amount)}</td>
                       <td className="p-2 text-right">{money(item.vat)}</td>
                       <td className="p-2 text-right font-medium">{money(item.total)}</td>
                       <td className="p-2 text-right">
-                        <Button size="icon" variant="ghost" onClick={() => removeBillItem(idx)}>
-                          <Trash2 className="size-4" />
+                        <Button size="icon" variant="ghost" onClick={() => removeBillItem(idx)} className="h-7 w-7">
+                          <Trash2 className="size-3.5 text-destructive" />
                         </Button>
                       </td>
                     </tr>
@@ -321,24 +329,24 @@ export function SalesRegister() {
               </table>
             </div>
 
-            <div className="mt-3 flex flex-wrap items-center justify-between gap-4 border-t border-border pt-3">
-              <div className="flex gap-6 text-sm">
+            <div className="mt-3 flex flex-col gap-3 border-t border-border pt-3 sm:flex-row sm:items-center sm:justify-between">
+              <div className="flex flex-wrap items-center gap-4 text-xs sm:text-sm">
                 <span>
-                  Subtotal <strong>{money(billSubtotal)}</strong>
+                  Subtotal: <strong>{money(billSubtotal)}</strong>
                 </span>
                 <span>
-                  VAT 13% <strong>{money(billVat)}</strong>
+                  VAT 13%: <strong>{money(billVat)}</strong>
                 </span>
-                <span className="text-base">
-                  Total <strong>{money(billTotal)}</strong>
+                <span className="rounded bg-primary/10 px-2 py-0.5 text-sm font-bold text-primary">
+                  Total: {money(billTotal)}
                 </span>
               </div>
               <div className="flex gap-2">
-                <Button onClick={saveBill} disabled={saving}>
+                <Button onClick={saveBill} disabled={saving} className="flex-1 sm:flex-initial">
                   {saving ? "Saving..." : "Save Bill"}
                 </Button>
-                <Button variant="outline" onClick={onExport}>
-                  <Download className="mr-1 size-4" /> Export Excel
+                <Button variant="outline" onClick={onExport} className="flex-1 sm:flex-initial">
+                  <Download className="mr-1 size-3.5 sm:size-4" /> Export Excel
                 </Button>
               </div>
             </div>
@@ -347,54 +355,55 @@ export function SalesRegister() {
 
         {billItems.length === 0 && (
           <div className="mt-4 flex justify-end border-t border-border pt-4">
-            <Button variant="outline" onClick={onExport}>
-              <Download className="mr-1 size-4" /> Export Excel
+            <Button variant="outline" onClick={onExport} size="sm" className="text-xs sm:text-sm">
+              <Download className="mr-1 size-3.5 sm:size-4" /> Export Excel
             </Button>
           </div>
         )}
       </Card>
 
       <Card className="overflow-hidden p-0">
-        <div className="max-h-[50vh] overflow-auto">
-          <table className="w-full text-sm">
+        <div className="max-h-[50vh] overflow-x-auto overflow-y-auto">
+          <table className="w-full min-w-[650px] text-xs sm:text-sm">
             <thead className="sticky top-0 bg-secondary text-secondary-foreground">
               <tr className="text-left">
-                <th className="p-2">Date</th>
-                <th className="p-2">Invoice</th>
-                <th className="p-2">Customer</th>
-                <th className="p-2">Payment</th>
-                <th className="p-2">Items</th>
-                <th className="p-2 text-right">Total</th>
-                <th className="p-2"></th>
+                <th className="p-2.5">Date</th>
+                <th className="p-2.5">Invoice</th>
+                <th className="p-2.5">Customer</th>
+                <th className="p-2.5">Payment</th>
+                <th className="p-2.5">Items</th>
+                <th className="p-2.5 text-right">Total</th>
+                <th className="p-2.5"></th>
               </tr>
             </thead>
             <tbody>
               {groupedSales.map((g) => (
                 <tr key={g.header.invoiceNo} className="border-t border-border">
-                  <td className="p-2">{g.header.date}</td>
-                  <td className="p-2 font-mono">{g.header.invoiceNo}</td>
-                  <td className="p-2">{g.header.customer}</td>
-                  <td className="p-2">
+                  <td className="p-2.5 whitespace-nowrap">{g.header.date}</td>
+                  <td className="p-2.5 font-mono font-medium">{g.header.invoiceNo}</td>
+                  <td className="p-2.5">{g.header.customer}</td>
+                  <td className="p-2.5">
                     <span className="inline-flex items-center rounded-md bg-secondary px-2 py-0.5 text-xs font-medium">
                       {g.header.paymentMethod}
                     </span>
                   </td>
-                  <td className="p-2">
+                  <td className="p-2.5">
                     {g.items.length} item{g.items.length > 1 ? "s" : ""}
                     <span className="ml-1 text-xs text-muted-foreground">
                       ({g.items.reduce((a, i) => a + i.qty, 0)} pcs)
                     </span>
                   </td>
-                  <td className="p-2 text-right font-medium">
+                  <td className="p-2.5 text-right font-medium">
                     {money(g.items.reduce((a, i) => a + i.total, 0))}
                   </td>
-                  <td className="p-2 text-right">
+                  <td className="p-2.5 text-right">
                     <Button
                       size="icon"
                       variant="ghost"
                       onClick={() => deleteInvoice(g.header.invoiceNo)}
+                      className="h-7 w-7"
                     >
-                      <Trash2 className="size-4" />
+                      <Trash2 className="size-3.5 text-muted-foreground hover:text-destructive" />
                     </Button>
                   </td>
                 </tr>
@@ -411,7 +420,7 @@ export function SalesRegister() {
         </div>
       </Card>
 
-      <p className="text-right text-sm text-muted-foreground">
+      <p className="text-right text-xs sm:text-sm text-muted-foreground">
         Grand total sales: <strong className="text-foreground">{money(grand)}</strong>
       </p>
     </div>

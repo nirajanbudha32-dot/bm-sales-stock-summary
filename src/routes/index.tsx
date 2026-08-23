@@ -55,41 +55,47 @@ function Index() {
   const isAdmin = profile?.role === "admin";
 
   return (
-    <main className="mx-auto max-w-7xl px-4 py-8">
-      <header className="mb-6 flex flex-wrap items-center justify-between gap-4">
+    <main className="mx-auto max-w-7xl px-3 py-4 sm:px-6 sm:py-8">
+      <header className="mb-6 flex flex-col gap-3 border-b border-border/60 pb-4 sm:flex-row sm:items-center sm:justify-between sm:border-b-0 sm:pb-0">
         <div>
-          <h1 className="text-2xl font-semibold tracking-tight">BM iPhone Store</h1>
-          <p className="text-sm text-muted-foreground">Stock management &amp; sales register</p>
+          <h1 className="text-xl font-bold tracking-tight sm:text-2xl">BM iPhone Store</h1>
+          <p className="text-xs text-muted-foreground sm:text-sm">Stock management &amp; sales register</p>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="text-sm text-muted-foreground">{user.email}</span>
-          <Badge variant={isAdmin ? "default" : "secondary"}>
-            {isAdmin ? "Admin" : "Salesman"}
-          </Badge>
-          {isAdmin && (
-            <Button variant="outline" size="sm" onClick={() => setUserManagerOpen(true)}>
-              <Users className="mr-1 size-4" /> Users
+        <div className="flex flex-wrap items-center justify-between gap-2 sm:justify-end">
+          <div className="flex items-center gap-2">
+            <span className="max-w-[140px] truncate text-xs text-muted-foreground sm:max-w-none sm:text-sm" title={user.email || ""}>
+              {user.email}
+            </span>
+            <Badge variant={isAdmin ? "default" : "secondary"} className="capitalize text-xs">
+              {isAdmin ? "Admin" : "Salesman"}
+            </Badge>
+          </div>
+          <div className="flex items-center gap-2">
+            {isAdmin && (
+              <Button variant="outline" size="sm" onClick={() => setUserManagerOpen(true)} className="h-8 text-xs sm:h-9 sm:text-sm">
+                <Users className="mr-1 size-3.5 sm:size-4" /> Users
+              </Button>
+            )}
+            <Button variant="ghost" size="sm" onClick={signOut} className="h-8 text-xs sm:h-9 sm:text-sm">
+              <LogOut className="mr-1 size-3.5 sm:size-4" /> Logout
             </Button>
-          )}
-          <Button variant="ghost" size="sm" onClick={signOut}>
-            <LogOut className="mr-1 size-4" /> Logout
-          </Button>
+          </div>
         </div>
       </header>
 
       <Tabs defaultValue="sales">
-        <TabsList className="mb-4 flex-wrap">
-          <TabsTrigger value="sales">
-            <ReceiptText className="mr-1 size-4" /> Sales register
+        <TabsList className="mb-6 grid h-auto w-full grid-cols-2 gap-1.5 p-1.5 sm:flex sm:h-10 sm:w-auto sm:grid-cols-none sm:gap-1 sm:p-1">
+          <TabsTrigger value="sales" className="py-2 text-xs sm:py-1.5 sm:text-sm">
+            <ReceiptText className="mr-1.5 size-3.5 sm:size-4" /> Sales register
           </TabsTrigger>
-          <TabsTrigger value="stock">
-            <Boxes className="mr-1 size-4" /> Stock
+          <TabsTrigger value="stock" className="py-2 text-xs sm:py-1.5 sm:text-sm">
+            <Boxes className="mr-1.5 size-3.5 sm:size-4" /> Stock
           </TabsTrigger>
-          <TabsTrigger value="stockout">
-            <Truck className="mr-1 size-4" /> Stock Out
+          <TabsTrigger value="stockout" className="py-2 text-xs sm:py-1.5 sm:text-sm">
+            <Truck className="mr-1.5 size-3.5 sm:size-4" /> Stock Out
           </TabsTrigger>
-          <TabsTrigger value="summary">
-            <BarChart3 className="mr-1 size-4" /> Summary
+          <TabsTrigger value="summary" className="py-2 text-xs sm:py-1.5 sm:text-sm">
+            <BarChart3 className="mr-1.5 size-3.5 sm:size-4" /> Summary
           </TabsTrigger>
         </TabsList>
         <TabsContent value="sales">
