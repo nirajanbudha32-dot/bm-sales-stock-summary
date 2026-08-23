@@ -30,6 +30,7 @@ function LoginPage() {
     const { error } = await signIn(email, password);
     setSubmitting(false);
     if (error) {
+      console.error("Login error:", error);
       toast.error(error.message);
     } else {
       toast.success("Logged in");
